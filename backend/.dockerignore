@@ -1,0 +1,7 @@
+# Virtual environment (ignore the entire venv folder)
+venv/
+myenv/
+
+# Bytecode files
+__pycache__/
+
