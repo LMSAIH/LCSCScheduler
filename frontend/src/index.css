@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+body{
+  @apply text-3xl;
+}
+
+.fc .fc-event-title {
+  white-space: normal !important; 
+  word-wrap: break-word !important; 
+  overflow: visible !important; 
+  padding: 5px;
+  color:black;
+}
+
+.fc .fc-event-time{
+  color:black;
+}
