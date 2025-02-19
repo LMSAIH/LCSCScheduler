@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  fastapi:
+    build: .
+    container_name: app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: always
