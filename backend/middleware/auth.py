@@ -17,14 +17,10 @@ def get_current_user(token: str = Depends(get_token), supabase: Client = Depends
     try:
         result = supabase.auth.get_user(token)
         
-        if not result or "data" not in result:
-            raise HTTPException(status_code=401, detail="Invalid token or no user data")
-
-        user_data = result["data"].get("user")
-        if not user_data:
+        if not result or not result.user:
             raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-        return user_data
+        return result.user
 
     except Exception as e:
         raise HTTPException(status_code=401, detail=f"Error getting user: {str(e)}")
