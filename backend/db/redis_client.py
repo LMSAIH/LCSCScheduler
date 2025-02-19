@@ -2,8 +2,11 @@ import os
 from redis.asyncio import Redis
 
 # Read environment variables
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+try:
+    REDIS_HOST = os.environ["REDIS_HOST"]
+    REDIS_PORT = os.environ["REDIS_PORT"]
+except KeyError as e:
+    raise RuntimeError(f"Missing required redis environment variable: {e.args[0]}")
 
 # Create a global Redis client
 redis_client = Redis(

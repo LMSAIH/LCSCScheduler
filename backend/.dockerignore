@@ -5,3 +5,5 @@ myenv/
 # Bytecode files
 __pycache__/
 
+# Environmental Variables
+.env
