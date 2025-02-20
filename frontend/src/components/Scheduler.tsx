@@ -113,7 +113,7 @@ export default function Scheduler() {
     };
 
     return (
-        <div className="w-1/2 m-auto">
+        <div className="w-full sm:w-1/2 m-auto">
             <div className="flex flex-row gap-10 justify-center mb-5">
                 <button
                     onClick={() => setObjectState("Permanent")}
@@ -158,6 +158,11 @@ export default function Scheduler() {
                     start: new Date(new Date().setUTCMonth(new Date().getUTCMonth() - 1)),
                     end: new Date(new Date().setUTCFullYear(new Date().getUTCFullYear() + 1))
                 }}
+                longPressDelay={100}
+                eventLongPressDelay={200}
+                selectLongPressDelay={100}
+                aspectRatio={1}
+                
             />
         </div>
     );
