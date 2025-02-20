@@ -1,7 +1,17 @@
 import { HomeIcon, Settings2, LogOut } from "lucide-react"
 import { Link } from "react-router-dom"
-
+import { useAuthContext } from "../context/AuthContext"
+import { useNavigate } from "react-router-dom";
 export default function NavBar() {
+
+  const {logout} = useAuthContext();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  }
+
   return (
     <nav className="flex h-16 items-center justify-between bg-[#121212] px-6 text-white border-b border-[#2A2A2A]">
       <div className="flex items-center gap-6">
@@ -16,7 +26,7 @@ export default function NavBar() {
         <Link to="/settings" className="p-2 hover:bg-[#2A2A2A] rounded-md transition-colors">
           <Settings2 className="h-5 w-5" />
         </Link>
-        <button className="p-2 hover:bg-[#2A2A2A] rounded-md transition-colors text-[#F15A29]">
+        <button onClick={handleLogout} className="p-2 hover:bg-[#2A2A2A] rounded-md transition-colors text-[#F15A29]">
           <LogOut className="h-5 w-5" />
         </button>
       </div>
