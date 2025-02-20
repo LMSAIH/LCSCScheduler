@@ -4,7 +4,7 @@ export default function Home() {
 
     return (
 
-        <div className="min-h-screen bg-[#121212] text-white">
+        <div className="min-h-screen text-white">
             <main className="mx-auto p-6">
                 <Scheduler />
                 <div className="mt-8 flex justify-center">
