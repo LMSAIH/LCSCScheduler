@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react"
-import { Save, Eye, EyeOff } from "lucide-react"
+import { Save, Eye, EyeOff, Moon, Sun } from "lucide-react"
+import { useDarkMode } from "../context/DarkModeContext"
 const roles = ["Club Directives", "Marketing Team", "Social Media Team", "Developer Team", "Volunteers", "Admin"]
 
 export default function SettingsPage() {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([])
   const [adminPassword, setAdminPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const { toggleDarkMode, darkMode } = useDarkMode();
 
   useEffect(() => {
-    // Remove admin password if Admin role is deselected
     if (!selectedRoles.includes("Admin")) {
       setAdminPassword("")
     }
@@ -19,7 +20,7 @@ export default function SettingsPage() {
   }
 
   const handleSave = () => {
-   
+
     console.log("Roles saved:", selectedRoles)
     if (selectedRoles.includes("Admin")) {
       console.log("Admin password:", adminPassword)
@@ -27,7 +28,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#121212] text-white">
+    <div className="min-h-screen text-white">
       <main className="max-w-3xl mx-auto p-6">
         <h1 className="text-3xl font-bold text-[#F15A29] mb-8">Settings</h1>
 
@@ -78,6 +79,17 @@ export default function SettingsPage() {
               </div>
             </div>
           )}
+
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-2">Dark Mode</h3>
+            <button
+              onClick={() => toggleDarkMode()}
+              className={`px-4 py-2 ${darkMode ? "bg-[#2A2A2A] hover:bg-[#404040]" : "bg-[#2A2A2A] hover:bg-[#404040]"} rounded-md transition-colors flex items-center`}
+            >
+              {darkMode ? <Sun className="h-5 w-5 mr-2" /> : <Moon className="h-5 w-5 mr-2" />}
+              {darkMode ? "Light Mode" : "Dark Mode"}
+            </button>
+          </div>
 
           <div className="mt-6">
             <h3 className="text-lg font-semibold mb-2">Selected Roles:</h3>
