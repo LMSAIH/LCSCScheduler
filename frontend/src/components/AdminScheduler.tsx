@@ -79,7 +79,7 @@ export default function AdminScheduler() {
         filterRole === "All" ? events : events.filter((event: Event) => event.role === filterRole);
 
     return (
-        <div className="w-1/2 m-auto adminCalendar mt-16">
+        <div className="w-full md:w-1/2 m-auto adminCalendar mt-16">
             <div className="flex flex-row gap-4 justify-center mb-5">
                 <button
                     onClick={() => setFilterRole("All")}
