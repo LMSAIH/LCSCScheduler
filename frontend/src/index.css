@@ -13,6 +13,10 @@
   @apply h-14; 
 }
 
+.fc-view-harness{
+  @apply min-h-fit;
+}
+
 table, td, tr, td, tbody{
   @apply border-4 border-gray-400;
 }
