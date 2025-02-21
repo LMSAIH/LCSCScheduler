@@ -6,7 +6,6 @@ from typing import List
 from models.schedule import Event
 from datetime import datetime
 import pytz
-import uuid
 
 router = APIRouter()
 
@@ -35,16 +34,22 @@ def set_schedule(events: List[Event], supabase: Client = Depends(get_supabase), 
 
         for event in events:
             if (event.type == "Temporary" and event.start and event.end):
-                start_time_iso = event.start.astimezone(PST).isoformat()
-                end_time_iso = event.end.astimezone(PST).isoformat()
                 event_data.append({
                     "user_id": user_id,
-                    "start_time": start_time_iso,
-                    "end_time": end_time_iso,
-                    "event_type": "Temporary"
+                    "calendar_id": event.id,
+                    "start_date": event.start.isoformat(),
+                    "end_date": event.end.isoformat(),
+                    "event_type": event.type
                 })
-            elif (event.type == "Permanent" and event.startTime and event.endTime and event.daysOfWeek):
-                pass
+            elif (event.type == "Permanent" and event.startTime and event.endTime and event.daysOfWeek and len(event.daysOfWeek) > 0):
+                event_data.append({
+                    "user_id": user_id,
+                    "calendar_id": event.id,
+                    "start_time": event.startTime,
+                    "end_time": event.endTime,
+                    "day_of_week": event.daysOfWeek[0],
+                    "event_type": event.type
+                })
             else:
                 raise HTTPException(status_code=400, detail="Invalid event data.")
 
