@@ -4,7 +4,7 @@ from db.supabase_client import get_supabase
 from middleware.auth import get_current_user
 from typing import List
 from models.schedule import Event
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 
 router = APIRouter()
@@ -12,16 +12,41 @@ router = APIRouter()
 PST = pytz.timezone("America/Vancouver")
 
 @router.get("/")
-def get_schedule(supabase: Client = Depends(get_supabase), current_user: dict = Depends(get_current_user)):
+def get_schedule(supabase: Client = Depends(get_supabase), current_user: dict = Depends(get_current_user)) -> List[Event]:
     try:
         user_id = current_user.id
-        today = datetime.now(PST).isoformat()
 
-        query = supabase.table("events").select("*").filter("user_id", "eq", user_id).or_(f"event_type.eq.Recurrent, (event_type.eq.Temporary and start_time.gte.{today})").execute()
+        today = datetime.now(PST)
+        beginning_of_week = today - timedelta(days=today.weekday() + 1)
+        beginning_of_week = beginning_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+        prev_sunday = beginning_of_week.isoformat()
 
-        # TODO
+        query = supabase.table("events").select("*").filter("user_id", "eq", user_id).or_(f"start_date.is.null, start_date.gte.{prev_sunday})").execute()
 
-        return {"schedule": query.data}
+        events = []
+
+        for event in query.data:
+            if (event["event_type"] == "Temporary"):
+                events.append(Event(
+                    id=event["calendar_id"],
+                    title=event["event_type"],
+                    start=datetime.fromisoformat(event["start_date"]),
+                    end=datetime.fromisoformat(event["end_date"]),
+                    color="yellow",
+                    type=event["event_type"]
+                ))
+            elif (event["event_type"] == "Permanent"):
+                events.append(Event(
+                    id=event["calendar_id"],
+                    title=event["event_type"],
+                    daysOfWeek=[event["day_of_week"]],
+                    startTime=event["start_time"],
+                    endTime=event["end_time"],
+                    color="green",
+                    type=event["event_type"]
+                ))
+
+        return events
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error getting schedule: {str(e)}")
     
