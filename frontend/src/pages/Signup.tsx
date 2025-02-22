@@ -1,6 +1,6 @@
 import type React from "react"
 
-import { APIBASEURL } from "../utilities/ApiEndpoint"
+import { APIBASEURL, AUTHPREFIX } from "../utilities/ApiEndpoint"
 import axios from 'axios'
 import { useState } from "react"
 import { Link } from "react-router-dom"
@@ -26,7 +26,7 @@ export default function SignupPage() {
                 throw new Error("Password must match");
             }
 
-            const response:any = await axios.post(`${APIBASEURL}auth/signup`,{email,password});
+            const response:any = await axios.post(`${APIBASEURL}${AUTHPREFIX}/signup`,{email,password});
             console.log(response)
 
             if(response.status !== 200){
