@@ -28,10 +28,10 @@ const generateAvailabilitySlots = (baseDate: Date = new Date()): AvailabilitySlo
     const Roles = ["Developer", "Volunteer", "President"];
 
     for (let dayOffset = 0; dayOffset < 6; dayOffset++) {
-        
+
         const currentDay = new Date(baseDate);
         currentDay.setDate(baseDate.getDate() + dayOffset);
-        
+
         for (let hour = 7; hour < 19; hour++) {
             const startDate = new Date(currentDay);
             startDate.setHours(hour, 0, 0, 0);
@@ -111,6 +111,7 @@ export default function AdminScheduler() {
                 </button>
             </div>
             <FullCalendar
+                timeZone="America/Vancouver"
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 initialView="timeGridWeek"
                 events={filteredEvents}
