@@ -8,7 +8,7 @@ import { APIBASEURL, SCHEDULEPREFIX } from "../utilities/ApiEndpoint";
 import { useAuthContext } from "../context/AuthContext";
 import { v4 as uuidv4 } from 'uuid'
 import { TrashIcon } from "lucide-react";
-import {DateTime} from 'luxon'
+
 
 
 type Event = {
@@ -98,20 +98,20 @@ export default function Scheduler() {
         } else {
             eventStart = new Date(info.startStr);
             eventEnd = new Date(info.endStr);
-        
+
             if (eventStart.getDay() !== eventEnd.getDay()) {
-              document.body.style.cursor = "not-allowed";
-              setTimeout(() => {
-                document.body.style.cursor = "";
-              }, 300);
-              return;
+                document.body.style.cursor = "not-allowed";
+                setTimeout(() => {
+                    document.body.style.cursor = "";
+                }, 300);
+                return;
             }
             console.log(eventStart, eventEnd);
         }
 
         let newEvent: Event;
         if (objectState === "Permanent") {
-            
+
             newEvent = {
                 id: uuidv4(),
                 title: "Permanent",
@@ -121,9 +121,9 @@ export default function Scheduler() {
                 color: "green",
                 type: objectState,
             };
-            console.log("Here new event:", newEvent)
+
         } else {
-            
+
             newEvent = {
                 id: uuidv4(),
                 title: "Temporary",
@@ -140,6 +140,7 @@ export default function Scheduler() {
     };
 
     const handleEventDrop = (info: any) => {
+
         if (info.event.allDay) {
             info.revert();
             return;
@@ -157,19 +158,12 @@ export default function Scheduler() {
                         end: info.event.end,
                     };
                 } else {
-
-                    //TODO: Make this work properly
-                    const vancouverStart = DateTime.fromJSDate(info.event.start).setZone("America/Vancouver");
-                    const vancouverEnd = DateTime.fromJSDate(info.event.end).setZone("America/Vancouver").toFormat("HH:mm:ss");
-
-                    console.log(vancouverStart,vancouverEnd);
-            
-                    return {
-                      ...event,
-                      daysOfWeek: [vancouverStart.weekday % 7],
-                      startTime: vancouverStart.toFormat("HH:mm:ss"),
-                      endTime: vancouverEnd
-                    };
+                    info.revert();
+                    document.body.style.cursor = "not-allowed";
+                    setTimeout(() => {
+                        document.body.style.cursor = "";
+                    }, 300);
+                    return event;
                 }
             }
             return event;
