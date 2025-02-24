@@ -15,7 +15,36 @@ export default function SettingsPage() {
   const { token } = useAuthContext();
   const [error, setError] = useState<String | null>(null);
   const [loading, setLoading] = useState(false);
+  const [existingRoles, setExistingRoles] = useState<string[]>([]);
 
+  useEffect(() => {
+
+    const fetchRoles = async () => {
+      setLoading(true);
+      try {
+
+        const response = await axios.get(
+          `${APIBASEURL}${ROLESPREFIX}/`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        console.log(response.data)
+
+        setExistingRoles(response.data.roles);
+
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+
+    }
+
+    fetchRoles();
+
+  }, [])
 
   useEffect(() => {
     if (!selectedRoles.includes("Admin")) {
@@ -44,9 +73,12 @@ export default function SettingsPage() {
         }
       );
 
+      console.log(updateResponse.data)
+      setExistingRoles(updateResponse.data.roles);
       setError(null);
 
     } catch (err: any) {
+      console.log(err)
       setError(err.message);
     } finally {
       setLoading(false);
@@ -59,6 +91,9 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-bold text-[#F15A29] mb-8">Settings</h1>
 
         <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-6">
+          <h2 className="text-xl font-semibold mb-4">Your Roles</h2>
+          <div className="text-gray-400 mb-4 flex flex-row flex-wrap gap-y-2">{existingRoles.length == 0 ? "No roles assigned yet" :
+            existingRoles.map((role) => <div className="py-1 px-2 bg-[#F15A29] rounded-md text-white mr-2 font-semibold" key={role}>{role}</div>)} </div>
           <h2 className="text-xl font-semibold mb-4">Change Your Roles</h2>
           <p className="text-gray-400 mb-4">Select your roles in the Langara Computer Science Club</p>
           <div className="space-y-2">
@@ -127,10 +162,10 @@ export default function SettingsPage() {
             className="mt-6 px-6 py-2 bg-[#F15A29] hover:bg-[#D14918] 
                        rounded-md transition-colors font-medium flex items-center"
           >
-            {loading ? <LoaderCircleIcon className="h-5 w-5 mr-2 animate-spin"/> : <Save className="h-5 w-5 mr-2" />}
+            {loading ? <LoaderCircleIcon className="h-5 w-5 mr-2 animate-spin" /> : <Save className="h-5 w-5 mr-2" />}
             Save Changes
           </button>
-          
+
           {error && <p className="text-white text-center">{error}</p>}
         </div>
       </main>
