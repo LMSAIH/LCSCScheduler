@@ -44,11 +44,12 @@ async def assignRoles(
             if role == "Admin" and roles_updated.password != ADMIN_PWD:
                 raise HTTPException(status_code=400,detail="Admin password wasn't provided or was incorrect")
                 
+        supabase.table('user_roles').delete().eq('email', userMail).execute()
         
-        response = supabase.table('user_roles').upsert({
+        response = supabase.table('user_roles').insert({
             'email': userMail,
             'roles': roles_updated.roles
-        }).execute()
+        }).execute()   
         
         if not response.data:
             raise HTTPException(status_code=400, detail="Failed to update roles")
