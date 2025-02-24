@@ -7,7 +7,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { APIBASEURL, SCHEDULEPREFIX } from "../utilities/ApiEndpoint";
 import { useAuthContext } from "../context/AuthContext";
 import { v4 as uuidv4 } from 'uuid'
-import { TrashIcon } from "lucide-react";
+import { TrashIcon, LoaderCircleIcon } from "lucide-react";
 
 
 
@@ -28,10 +28,15 @@ export default function Scheduler() {
     const [events, setEvents] = useState<Event[]>([]);
     const [objectState, setObjectState] = useState<"Permanent" | "Temporary">("Permanent");
     const { token } = useAuthContext();
+    const [loading, setIsLoading] = useState(false);
 
 
     useEffect(() => {
+
+
         const fetchData = async () => {
+
+            setIsLoading(true);
 
             try {
                 const response = await axios.get(`${APIBASEURL}${SCHEDULEPREFIX}/`, {
@@ -44,35 +49,43 @@ export default function Scheduler() {
             } catch (err) {
                 console.log(err);
             }
+
+            setIsLoading(false);
+
         };
 
         fetchData();
     }, [token]);
 
     const handleSend = async () => {
+
+        setIsLoading(true);
         try {
             const response = await axios.post(
                 `${APIBASEURL}${SCHEDULEPREFIX}/`,
                 events,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            console.log(response);
         } catch (err) {
             console.log(err);
         }
+        setIsLoading(false);
     };
 
     const handleReset = async () => {
+        setIsLoading(true);
+
         try {
             const response = await axios.post(
                 `${APIBASEURL}${SCHEDULEPREFIX}/`,
                 [],
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            console.log(response);
+            setEvents([]);
         } catch (err) {
             console.log(err);
         }
+        setIsLoading(false);
     };
 
     const handleEventClick = (info: any) => {
@@ -85,8 +98,6 @@ export default function Scheduler() {
         if (!info) {
             return;
         }
-
-        console.log(info)
 
         let eventStart: Date, eventEnd: Date;
 
@@ -230,7 +241,7 @@ export default function Scheduler() {
                     className="px-6 py-2 bg-[#F15A29] hover:bg-[#D14918] 
                        rounded-md transition-colors font-medium"
                 >
-                    Send Schedule
+                    {loading ? <LoaderCircleIcon className=" animate-spin"/> : "Send Schedule"}
                 </button>
                 <TrashIcon className="my-auto hover:text-red-500 duration-300" onClick={handleReset} />
             </div>
