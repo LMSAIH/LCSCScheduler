@@ -7,8 +7,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { APIBASEURL, SCHEDULEPREFIX } from "../utilities/ApiEndpoint";
 import { useAuthContext } from "../context/AuthContext";
 import { v4 as uuidv4 } from 'uuid'
-import { TrashIcon } from "lucide-react";
-import {DateTime} from 'luxon'
+import { TrashIcon, LoaderCircleIcon } from "lucide-react";
+
 
 
 type Event = {
@@ -28,10 +28,15 @@ export default function Scheduler() {
     const [events, setEvents] = useState<Event[]>([]);
     const [objectState, setObjectState] = useState<"Permanent" | "Temporary">("Permanent");
     const { token } = useAuthContext();
+    const [loading, setIsLoading] = useState(false);
 
 
     useEffect(() => {
+
+
         const fetchData = async () => {
+
+            setIsLoading(true);
 
             try {
                 const response = await axios.get(`${APIBASEURL}${SCHEDULEPREFIX}/`, {
@@ -44,35 +49,43 @@ export default function Scheduler() {
             } catch (err) {
                 console.log(err);
             }
+
+            setIsLoading(false);
+
         };
 
         fetchData();
     }, [token]);
 
     const handleSend = async () => {
+
+        setIsLoading(true);
         try {
             const response = await axios.post(
                 `${APIBASEURL}${SCHEDULEPREFIX}/`,
                 events,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            console.log(response);
         } catch (err) {
             console.log(err);
         }
+        setIsLoading(false);
     };
 
     const handleReset = async () => {
+        setIsLoading(true);
+
         try {
             const response = await axios.post(
                 `${APIBASEURL}${SCHEDULEPREFIX}/`,
                 [],
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            console.log(response);
+            setEvents([]);
         } catch (err) {
             console.log(err);
         }
+        setIsLoading(false);
     };
 
     const handleEventClick = (info: any) => {
@@ -86,8 +99,6 @@ export default function Scheduler() {
             return;
         }
 
-        console.log(info)
-
         let eventStart: Date, eventEnd: Date;
 
         if (info.allDay) {
@@ -98,20 +109,20 @@ export default function Scheduler() {
         } else {
             eventStart = new Date(info.startStr);
             eventEnd = new Date(info.endStr);
-        
+
             if (eventStart.getDay() !== eventEnd.getDay()) {
-              document.body.style.cursor = "not-allowed";
-              setTimeout(() => {
-                document.body.style.cursor = "";
-              }, 300);
-              return;
+                document.body.style.cursor = "not-allowed";
+                setTimeout(() => {
+                    document.body.style.cursor = "";
+                }, 300);
+                return;
             }
             console.log(eventStart, eventEnd);
         }
 
         let newEvent: Event;
         if (objectState === "Permanent") {
-            
+
             newEvent = {
                 id: uuidv4(),
                 title: "Permanent",
@@ -121,9 +132,9 @@ export default function Scheduler() {
                 color: "green",
                 type: objectState,
             };
-            console.log("Here new event:", newEvent)
+
         } else {
-            
+
             newEvent = {
                 id: uuidv4(),
                 title: "Temporary",
@@ -140,6 +151,7 @@ export default function Scheduler() {
     };
 
     const handleEventDrop = (info: any) => {
+
         if (info.event.allDay) {
             info.revert();
             return;
@@ -157,19 +169,12 @@ export default function Scheduler() {
                         end: info.event.end,
                     };
                 } else {
-
-                    //TODO: Make this work properly
-                    const vancouverStart = DateTime.fromJSDate(info.event.start).setZone("America/Vancouver");
-                    const vancouverEnd = DateTime.fromJSDate(info.event.end).setZone("America/Vancouver").toFormat("HH:mm:ss");
-
-                    console.log(vancouverStart,vancouverEnd);
-            
-                    return {
-                      ...event,
-                      daysOfWeek: [vancouverStart.weekday % 7],
-                      startTime: vancouverStart.toFormat("HH:mm:ss"),
-                      endTime: vancouverEnd
-                    };
+                    info.revert();
+                    document.body.style.cursor = "not-allowed";
+                    setTimeout(() => {
+                        document.body.style.cursor = "";
+                    }, 300);
+                    return event;
                 }
             }
             return event;
@@ -236,7 +241,7 @@ export default function Scheduler() {
                     className="px-6 py-2 bg-[#F15A29] hover:bg-[#D14918] 
                        rounded-md transition-colors font-medium"
                 >
-                    Send Schedule
+                    {loading ? <LoaderCircleIcon className=" animate-spin"/> : "Send Schedule"}
                 </button>
                 <TrashIcon className="my-auto hover:text-red-500 duration-300" onClick={handleReset} />
             </div>

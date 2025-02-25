@@ -4,7 +4,7 @@ from typing import Optional, List
 
 class User(BaseModel):
     email: EmailStr
-    role: str
+    roles: List[str]
 
 class Event(BaseModel):
     id: str
