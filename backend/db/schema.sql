@@ -3,6 +3,14 @@ CREATE TABLE profiles (
     email VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE user_roles (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    email TEXT NOT NULL,
+    roles user_role[] NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 CREATE TABLE events (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,

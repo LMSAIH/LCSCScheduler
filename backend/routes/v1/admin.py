@@ -26,6 +26,9 @@ def get_availabilities(supabase: Client = Depends(get_supabase)):# -> List[Avail
 
         events_query = supabase.table("events").select("*, profiles(*)").or_(f"start_date.is.null, and(start_date.gte.'{prev_sunday}', start_date.lte.'{next_saturday}')").execute()
         events = events_query.data
+
+        profiles_query = supabase.table("profiles").select("*").execute()
+        max_people = len(profiles_query.data) if profiles_query.data else 0
         
         availability_slots = []
         for i in range(7): # TODO: use hashmap
@@ -33,7 +36,7 @@ def get_availabilities(supabase: Client = Depends(get_supabase)):# -> List[Avail
             for j in range(7, 20):
                 slot_start = current_day.replace(hour=j, minute=0, second=0, microsecond=0)
                 slot_end = current_day.replace(hour=j + 1, minute=0, second=0, microsecond=0)
-                count = 0
+                count = max_people
 
                 for event in events:
                     if event.get("event_type") == "Permanent" and event["start_time"] and event["end_time"] and event["day_of_week"]:
@@ -53,13 +56,13 @@ def get_availabilities(supabase: Client = Depends(get_supabase)):# -> List[Avail
                         continue
 
                     if event_end > slot_start and event_start < slot_end:
-                        count += 1
+                        count -= 1
 
                 availability_slots.append({
                     "startDate": slot_start,
                     "endDate": slot_end,
                     "numberOfPeople": count,
-                    "maxPeopleAvailable": 10,
+                    "maxPeopleAvailable": max_people,
                     "role": "All"
                 })
 

@@ -25,7 +25,17 @@ type AvailabilitySlot = {
     role: string;
 };
 
+const generateColor = (numberOfPeople:number, maxPeopleAvailable:number): string => {
+    const percentage = maxPeopleAvailable > 0 ? (numberOfPeople / maxPeopleAvailable) * 100 : 0;
 
+    if (percentage < 40) {
+        return "red";
+    } else if (percentage < 70) {
+        return "yellow";
+    } else {
+        return "green";
+    }
+}
 
 // const generateAvailabilitySlots = (baseDate: Date = new Date()): AvailabilitySlot[] => {
 //     const slots: AvailabilitySlot[] = [];
@@ -95,7 +105,7 @@ export default function AdminScheduler() {
                 start: slot.startDate,
                 end: slot.endDate,
                 title: `${slot.numberOfPeople}/${slot.maxPeopleAvailable}`,
-                color: "green",
+                color: generateColor(slot.numberOfPeople, slot.maxPeopleAvailable),
                 role: slot.role,
             };
         });
