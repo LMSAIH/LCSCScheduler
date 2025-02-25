@@ -12,8 +12,19 @@ def signup_user(user: UserSignup, supabase: Client = Depends(get_supabase)):
     Signup route that creates a user in Supabase Auth.
     """
     try:
-        response = supabase.auth.sign_up({"email": user.email, "password": user.password})
-        return {"data": response}
+        signup_response = supabase.auth.sign_up({"email": user.email, "password": user.password})
+
+        if not signup_response.user or not signup_response.user.id:
+            raise HTTPException(status_code=401, detail="Signup failed.")
+        
+        profile_data = {
+            "id": signup_response.user.id,
+            "email": user.email
+        }
+        
+        profile_response = supabase.table("profiles").insert(profile_data).execute()
+
+        return {"signup_data": signup_response, "profile_data": profile_response}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error during sign up: {str(e)}")
     
