@@ -30,7 +30,7 @@ def get_availabilities(supabase: Client = Depends(get_supabase)):# -> List[Avail
         availability_slots = []
         for i in range(7): # TODO: use hashmap
             current_day = beginning_of_week + timedelta(days=i)
-            for j in range(23):
+            for j in range(7, 20):
                 slot_start = current_day.replace(hour=j, minute=0, second=0, microsecond=0)
                 slot_end = current_day.replace(hour=j + 1, minute=0, second=0, microsecond=0)
                 count = 0
