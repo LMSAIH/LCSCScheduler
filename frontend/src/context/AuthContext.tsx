@@ -38,6 +38,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     try {
       const response = await axios.post(`${APIBASEURL}${AUTHPREFIX}/login`, { email, password });
+
+      console.log(response);
       if (response.status !== 200) {
         throw new Error("Invalid Login Credentials");
       }
