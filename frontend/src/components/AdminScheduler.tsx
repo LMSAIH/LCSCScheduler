@@ -3,77 +3,114 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { useAuthContext } from "../context/AuthContext";
+import axios from 'axios'
+import { APIBASEURL } from "../utilities/ApiEndpoint";
+
 
 type Event = {
     id: string;
-    start: Date;
-    end: Date;
+    start: string;
+    end: string;
     title: string;
     color: string;
     role: string;
 };
 
 type AvailabilitySlot = {
-    startDate: Date;
-    endDate: Date;
+    startDate: string;
+    endDate: string;
     numberOfPeople: number;
     maxPeopleAvailable: number;
     role: string;
 };
 
+const generateColor = (numberOfPeople:number, maxPeopleAvailable:number): string => {
+    const percentage = maxPeopleAvailable > 0 ? (numberOfPeople / maxPeopleAvailable) * 100 : 0;
 
-
-const generateAvailabilitySlots = (baseDate: Date = new Date()): AvailabilitySlot[] => {
-    const slots: AvailabilitySlot[] = [];
-    const Roles = ["Developer", "Volunteer", "President"];
-
-    for (let dayOffset = 0; dayOffset < 6; dayOffset++) {
-
-        const currentDay = new Date(baseDate);
-        currentDay.setDate(baseDate.getDate() + dayOffset);
-
-        for (let hour = 7; hour < 19; hour++) {
-            const startDate = new Date(currentDay);
-            startDate.setHours(hour, 0, 0, 0);
-
-            const endDate = new Date(currentDay);
-            endDate.setHours(hour + 1, 0, 0, 0);
-
-            const numberOfPeople = Math.floor(Math.random() * 10);
-            const maxPeopleAvailable = 10;
-            const role = Roles[Math.floor(Math.random() * Roles.length)];
-
-            slots.push({
-                startDate,
-                endDate,
-                numberOfPeople,
-                maxPeopleAvailable,
-                role
-            });
-        }
+    if (percentage < 40) {
+        return "red";
+    } else if (percentage < 70) {
+        return "yellow";
+    } else {
+        return "green";
     }
-    return slots;
-};
+}
+
+// const generateAvailabilitySlots = (baseDate: Date = new Date()): AvailabilitySlot[] => {
+//     const slots: AvailabilitySlot[] = [];
+//     const Roles = ["Developer", "Volunteer", "President"];
+
+//     for (let dayOffset = 0; dayOffset < 6; dayOffset++) {
+
+//         const currentDay = new Date(baseDate);
+//         currentDay.setDate(baseDate.getDate() + dayOffset);
+
+//         for (let hour = 7; hour < 19; hour++) {
+//             const startDate = new Date(currentDay);
+//             startDate.setHours(hour, 0, 0, 0);
+
+//             const endDate = new Date(currentDay);
+//             endDate.setHours(hour + 1, 0, 0, 0);
+
+//             const numberOfPeople = Math.floor(Math.random() * 10);
+//             const maxPeopleAvailable = 10;
+//             const role = Roles[Math.floor(Math.random() * Roles.length)];
+
+//             slots.push({
+//                 startDate,
+//                 endDate,
+//                 numberOfPeople,
+//                 maxPeopleAvailable,
+//                 role
+//             });
+//         }
+//     }
+//     return slots;
+// };
 
 export default function AdminScheduler() {
 
     const [events, setEvents] = useState<Event[] | []>([]);
     const [filterRole, setFilterRole] = useState<string>("All");
+    const { token } = useAuthContext();
+    const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlot[]>([]);
 
     useEffect(() => {
-        const availabilitySlots = generateAvailabilitySlots();
+        const fetchData = async () => {
+
+            try {
+                const response = await axios.get(`${APIBASEURL}/admin/`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                console.log(response.data);
+                setAvailabilitySlots(response.data);
+
+            } catch (err) {
+                console.log(err);
+            }
+
+        };
+
+        fetchData();
+        
+    }, [token]);
+
+    useEffect(() => {
+        // const availabilitySlots = generateAvailabilitySlots();
         const newEvents: Event[] = availabilitySlots.map((slot, i) => {
             return {
                 id: i.toString(),
                 start: slot.startDate,
                 end: slot.endDate,
                 title: `${slot.numberOfPeople}/${slot.maxPeopleAvailable}`,
-                color: "green",
+                color: generateColor(slot.numberOfPeople, slot.maxPeopleAvailable),
                 role: slot.role,
             };
         });
         setEvents(newEvents);
-    }, []);
+    }, [availabilitySlots]);
 
     const filteredEvents =
         filterRole === "All" ? events : events.filter((event: Event) => event.role === filterRole);
