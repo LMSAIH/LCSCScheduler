@@ -39,7 +39,7 @@ def get_availabilities(supabase: Client = Depends(get_supabase)):# -> List[Avail
                 count = max_people
 
                 for event in events:
-                    if event.get("event_type") == "Permanent" and event["start_time"] and event["end_time"] and event["day_of_week"]:
+                    if event.get("event_type") == "Permanent" and event["start_time"] and event["end_time"] and event["day_of_week"] is not None:
                         event_day = beginning_of_week + timedelta(days=event["day_of_week"])
 
                         event_start_time = datetime.strptime(event["start_time"], "%H:%M:%S").time()
