@@ -1,6 +1,7 @@
 
 import { createContext, useState, useEffect, ReactNode, useContext } from "react";
 import axios from "axios";
+axios.defaults.withCredentials=true;
 import { APIBASEURL, AUTHPREFIX } from "../utilities/ApiEndpoint";
 
 
@@ -9,17 +10,19 @@ interface AuthContextType {
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  verifyAuth: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   token: null,
-  login: async () => {},
-  logout: () => {},
+  login: async () => { },
+  logout: () => { },
+  verifyAuth: async () => { },
 });
 
 export const useAuthContext = () => {
-    return useContext(AuthContext);
+  return useContext(AuthContext);
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -27,17 +30,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("access_token");
-    const storedUser = localStorage.getItem("user");
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
+    verifyAuth();
   }, []);
+
+  const verifyAuth = async () => {
+    try {
+      const response = await axios.get(`${APIBASEURL}${AUTHPREFIX}/verify`, { withCredentials: true });
+      setUser(response.data.user)
+      setToken(response.data.token)
+
+    } catch (err) {
+      console.log(err)
+      setUser(null);
+      setToken(null);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post(`${APIBASEURL}${AUTHPREFIX}/login`, { email, password });
+      const response = await axios.post(`${APIBASEURL}${AUTHPREFIX}/login`, { email, password }, { withCredentials: true });
 
       console.log(response);
       if (response.status !== 200) {
@@ -49,8 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       setToken(access_token);
       setUser(userData);
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("user", JSON.stringify(userData));
+
     } catch (err: any) {
       throw err;
     }
@@ -59,12 +69,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, verifyAuth }}>
       {children}
     </AuthContext.Provider>
   );
