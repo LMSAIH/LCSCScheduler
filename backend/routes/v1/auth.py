@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from supabase import Client
 from db.supabase_client import get_supabase
 from middleware.auth import get_current_user
@@ -29,24 +29,59 @@ def signup_user(user: UserSignup, supabase: Client = Depends(get_supabase)):
         raise HTTPException(status_code=400, detail=f"Error during sign up: {str(e)}")
     
 @router.post("/login")
-def login(user: UserSignup, supabase: Client = Depends(get_supabase)):
+def login(user: UserSignup, response: Response, supabase: Client = Depends(get_supabase) ):
     try:
-        response = supabase.auth.sign_in_with_password({"email": user.email, "password": user.password})
+        login_response = supabase.auth.sign_in_with_password({"email": user.email, "password": user.password})
 
-        session = response.session
-        if not session:
-            raise HTTPException(status_code=401, detail="Login failed or email not confirmed")
-        
-        access_token = session.access_token
-        user_data = response.user
-        
+        if not login_response.session:
+            raise HTTPException(
+                status_code=401, 
+                detail="Login failed or email not confirmed"
+          )
+      
+        response.set_cookie(
+                key="access_token",
+                value=login_response.session.access_token,
+                httponly=True,
+                secure=True,
+                max_age=6000,
+                samesite="lax"             
+        )
+    
         return {
-            "access_token": access_token,
-            "user": user_data
+            "access_token": login_response.session.access_token,
+            "user": login_response.user
         }
+        
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error during login: {str(e)}")
-    
+
 @router.get("/verify")
-async def verify(current_user: dict = Depends(get_current_user)):
-    return current_user
+async def verify(
+    response: Response,
+    request: Request,
+    supabase: Client = Depends(get_supabase)
+   
+):
+    try:
+        
+        token = request.cookies.get("access_token")
+        
+        if not token:
+            raise HTTPException(status_code=401, detail="No authentication token found")
+        
+        user = supabase.auth.get_user(token)
+        
+        response.set_cookie(
+            key="access_token",
+            value=token,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=6000
+        )
+        
+        return {"user": user, "token": token }
+        
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Token verification failed")
