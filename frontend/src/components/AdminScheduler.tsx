@@ -80,7 +80,7 @@ export default function AdminScheduler() {
         const fetchData = async () => {
 
             try {
-                const response = await axios.get(`${APIBASEURL}/admin/`, {
+                const response = await axios.get(`${APIBASEURL}/admin${filterRole != "All" ? `?role=${filterRole}` : "/"}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -95,7 +95,7 @@ export default function AdminScheduler() {
 
         fetchData();
         
-    }, [token]);
+    }, [token, filterRole]);
 
     useEffect(() => {
         // const availabilitySlots = generateAvailabilitySlots();

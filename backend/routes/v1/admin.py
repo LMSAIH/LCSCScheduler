@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from supabase import Client
 from db.supabase_client import get_supabase
 from middleware.auth import get_current_user
@@ -6,15 +6,19 @@ from typing import List
 from models.schedule import Availability
 from datetime import datetime, timedelta
 import pytz
+from typing import Optional
 
 router = APIRouter()
 
 PST = pytz.timezone("America/Vancouver")
 
 @router.get("/")
-def get_availabilities(supabase: Client = Depends(get_supabase)):# -> List[Availability]:
+def get_availabilities(role: Optional[str] = Query(None, description="Role to filter by"), supabase: Client = Depends(get_supabase)) -> List[Availability]:
     try:
-        #user_id = current_user.id
+        VALID_ROLES = ["Developer", "Volunteer", "President"] # TODO
+
+        if role and role not in VALID_ROLES:
+            raise HTTPException(status_code=400, detail="Invalid role.")
 
         today = datetime.now(PST)
         beginning_of_week = today - timedelta(days=today.weekday() + 1)
@@ -24,10 +28,14 @@ def get_availabilities(supabase: Client = Depends(get_supabase)):# -> List[Avail
         prev_sunday = beginning_of_week.isoformat()
         next_saturday = end_of_week.isoformat()
 
-        events_query = supabase.table("events").select("*, profiles(*)").or_(f"start_date.is.null, and(start_date.gte.'{prev_sunday}', start_date.lte.'{next_saturday}')").execute()
+        events_query = supabase.table("events").select("*, profiles(*, user_roles(*))").or_(f"start_date.is.null, and(start_date.gte.'{prev_sunday}', start_date.lte.'{next_saturday}')").execute()
         events = events_query.data
 
-        profiles_query = supabase.table("profiles").select("*").execute()
+        if role:
+            profiles_query = supabase.table("profiles").select("*, user_roles!inner(*)").eq("verified", True).filter("user_roles.roles", "cs", f'{{"{role}"}}').execute()
+        else:
+            profiles_query = supabase.table("profiles").select("*").eq("verified", True).execute()
+
         max_people = len(profiles_query.data) if profiles_query.data else 0
         
         availability_slots = []
@@ -39,7 +47,12 @@ def get_availabilities(supabase: Client = Depends(get_supabase)):# -> List[Avail
                 count = max_people
 
                 for event in events:
-                    if event.get("event_type") == "Permanent" and event["start_time"] and event["end_time"] and event["day_of_week"] is not None:
+                    user_roles_list = event["profiles"].get("user_roles", []) # TODO: cleanup
+
+                    if role and not any(role in user_roles.get("roles", []) for user_roles in user_roles_list):
+                        continue
+
+                    elif event.get("event_type") == "Permanent" and event["start_time"] and event["end_time"] and event["day_of_week"] is not None:
                         event_day = beginning_of_week + timedelta(days=event["day_of_week"])
 
                         event_start_time = datetime.strptime(event["start_time"], "%H:%M:%S").time()
@@ -63,7 +76,7 @@ def get_availabilities(supabase: Client = Depends(get_supabase)):# -> List[Avail
                     "endDate": slot_end,
                     "numberOfPeople": count,
                     "maxPeopleAvailable": max_people,
-                    "role": "All"
+                    "role": role if role else "All"
                 })
 
         return availability_slots

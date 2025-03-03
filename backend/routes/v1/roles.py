@@ -48,6 +48,7 @@ async def assignRoles(
         
         response = supabase.table('user_roles').insert({
             'email': userMail,
+            'user_id': current_user.id,
             'roles': roles_updated.roles
         }).execute()   
         
