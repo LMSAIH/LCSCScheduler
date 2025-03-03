@@ -3,6 +3,7 @@ from supabase import Client
 from db.supabase_client import get_supabase
 from middleware.auth import get_current_user
 from models.auth import UserSignup
+from utils.utils import is_strong_password
 
 router = APIRouter()
 
@@ -12,6 +13,13 @@ def signup_user(user: UserSignup, supabase: Client = Depends(get_supabase)):
     Signup route that creates a user in Supabase Auth.
     """
     try:
+        if not is_strong_password(user.password):
+            raise HTTPException(status_code=400, detail="Weak Password.")
+        
+        existing_profile = (supabase.table("profiles").select("*").eq("email", user.email).execute())
+        if existing_profile.data and len(existing_profile.data) > 0:
+            raise HTTPException(status_code=400, detail="Email already in use.")
+
         signup_response = supabase.auth.sign_up({"email": user.email, "password": user.password})
 
         if not signup_response.user or not signup_response.user.id:
