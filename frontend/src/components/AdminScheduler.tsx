@@ -73,8 +73,12 @@ export default function AdminScheduler() {
 
     const [events, setEvents] = useState<Event[] | []>([]);
     const [filterRole, setFilterRole] = useState<string>("All");
-    const { token } = useAuthContext();
+    const { user, token } = useAuthContext();
     const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlot[]>([]);
+
+    if (!user.user_roles || !(user.user_roles.length > 0) || !user.user_roles[0].roles?.includes("Admin")) {
+        return null;
+    }
 
     useEffect(() => {
         const fetchData = async () => {

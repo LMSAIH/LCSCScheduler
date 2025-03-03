@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from supabase import Client
 from db.supabase_client import get_supabase
-from middleware.auth import get_current_user
+from middleware.auth import check_admin
 from typing import List
 from models.schedule import Availability
 from datetime import datetime, timedelta
@@ -13,7 +13,7 @@ router = APIRouter()
 PST = pytz.timezone("America/Vancouver")
 
 @router.get("/")
-def get_availabilities(role: Optional[str] = Query(None, description="Role to filter by"), supabase: Client = Depends(get_supabase)) -> List[Availability]:
+def get_availabilities(role: Optional[str] = Query(None, description="Role to filter by"), supabase: Client = Depends(get_supabase), admin_user = Depends(check_admin) ) -> List[Availability]:
     try:
         VALID_ROLES = ["Developer", "Volunteer", "President"] # TODO
 

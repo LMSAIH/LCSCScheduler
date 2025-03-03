@@ -12,7 +12,7 @@ export default function SettingsPage() {
   const [adminPassword, setAdminPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const { toggleDarkMode, darkMode } = useDarkMode();
-  const { token } = useAuthContext();
+  const { token, verifyAuth } = useAuthContext();
   const [error, setError] = useState<String | null>(null);
   const [loading, setLoading] = useState(false);
   const [existingRoles, setExistingRoles] = useState<string[]>([]);
@@ -75,6 +75,7 @@ export default function SettingsPage() {
 
       console.log(updateResponse.data)
       setExistingRoles(updateResponse.data.roles);
+      verifyAuth();
       setError(null);
 
     } catch (err: any) {

@@ -25,14 +25,21 @@ def get_current_user(token: str = Depends(get_token), supabase: Client = Depends
     except Exception as e:
         raise HTTPException(status_code=401, detail=f"Error getting user: {str(e)}")
 
-def get_admin(token: str = Depends(get_token), supabase: Client = Depends(get_supabase)):
+def check_admin(token: str = Depends(get_token), supabase: Client = Depends(get_supabase)):
     try:
         result = supabase.auth.get_user(token)
         
         if not result or not result.user:
             raise HTTPException(status_code=401, detail="Invalid or expired token")
+        
+        user_id = result.user.id
+
+        roles_query = (supabase.table("user_roles").select("roles").eq("user_id", user_id).execute())
+
+        if not roles_query.data or "Admin" not in roles_query.data[0].get("roles", []):
+            raise HTTPException(status_code=403, detail="Access denied.")
 
         return result.user
 
     except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Error getting user: {str(e)}")
+        raise HTTPException(status_code=401, detail=f"Error checking admin: {str(e)}")

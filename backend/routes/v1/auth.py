@@ -71,6 +71,13 @@ async def verify(
             raise HTTPException(status_code=401, detail="No authentication token found")
         
         user = supabase.auth.get_user(token)
+        if not user or not user.user:
+            raise HTTPException(status_code=401, detail="Invalid or expired token")
+        
+        user_id = user.user.id
+
+        profile_query = (supabase.table("profiles").select("*, user_roles(*)").eq("id", user_id).single().execute())
+        profile_data = profile_query.data
         
         response.set_cookie(
             key="access_token",
@@ -81,7 +88,7 @@ async def verify(
             max_age=6000
         )
         
-        return {"user": user, "token": token }
+        return {"user": profile_data, "token": token }
         
     except Exception as e:
         raise HTTPException(status_code=401, detail="Token verification failed")
