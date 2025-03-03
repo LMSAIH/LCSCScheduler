@@ -61,11 +61,14 @@ export default function Scheduler() {
 
         setIsLoading(true);
         try {
+
+
             const response = await axios.post(
                 `${APIBASEURL}${SCHEDULEPREFIX}/`,
                 events,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+
         } catch (err) {
             console.log(err);
         }
@@ -89,9 +92,7 @@ export default function Scheduler() {
     };
 
     const handleEventClick = (info: any) => {
-        if (window.confirm(`Delete event "${info.event.title}"?`)) {
-            setEvents(events.filter(event => event.id !== info.event.id));
-        }
+        setEvents(events.filter(event => event.id !== info.event.id));
     };
 
     const handleDateSelect = (info: any) => {
@@ -101,7 +102,7 @@ export default function Scheduler() {
 
         let eventStart: Date, eventEnd: Date;
 
-        if (info.allDay) {
+        if (info.allDay && objectState !== "Permanent") {
             eventStart = new Date(info.end);
             eventStart.setHours(7, 0, 0, 0);
             eventEnd = new Date(info.end);
@@ -241,7 +242,7 @@ export default function Scheduler() {
                     className="px-6 py-2 bg-[#F15A29] hover:bg-[#D14918] 
                        rounded-md transition-colors font-medium"
                 >
-                    {loading ? <LoaderCircleIcon className=" animate-spin"/> : "Send Schedule"}
+                    {loading ? <LoaderCircleIcon className=" animate-spin" /> : "Send Schedule"}
                 </button>
                 <TrashIcon className="my-auto hover:text-red-500 duration-300" onClick={handleReset} />
             </div>

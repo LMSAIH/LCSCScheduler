@@ -15,6 +15,7 @@ export default function SignupPage() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [error, setError] = useState<string | null>(null);
     const [sent, setSent] = useState(false);
+    const [disabled,setDisabled] = useState(false);
 
     const handleSignup = async (e: React.FormEvent) => {
 
@@ -35,6 +36,7 @@ export default function SignupPage() {
 
             setError(null);
             setSent(true);
+            setDisabled(true);
 
         } catch (err:any) {
             
@@ -107,6 +109,7 @@ export default function SignupPage() {
                                 type="button"
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white"
+                                
                             >
                                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                             </button>
@@ -116,6 +119,7 @@ export default function SignupPage() {
                         type="submit"
                         className="w-full px-6 py-2 bg-[#F15A29] hover:bg-[#D14918] 
                        rounded-md transition-colors font-medium flex items-center justify-center"
+                       disabled={disabled}
                     >
                         <UserPlus className="h-5 w-5 mr-2" />
                         Sign Up
