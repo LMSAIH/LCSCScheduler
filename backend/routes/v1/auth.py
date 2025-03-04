@@ -62,6 +62,7 @@ def login(user: UserSignup, response: Response, supabase: Client = Depends(get_s
         }
         
     except Exception as e:
+        print(f"Error during login: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Error during login: {str(e)}")
 
 @router.get("/verify")
