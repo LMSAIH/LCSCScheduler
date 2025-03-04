@@ -8,6 +8,7 @@ import { UserPlus, Eye, EyeOff } from "lucide-react"
 import { FcGoogle } from "react-icons/fc"
 
 export default function SignupPage() {
+    const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
@@ -23,11 +24,15 @@ export default function SignupPage() {
 
         try {
 
+            if (!(name.trim().length > 0)) {
+                throw new Error("Name cannot be empty.");
+            }
+
             if(password !== confirmPassword){
                 throw new Error("Password must match");
             }
 
-            const response:any = await axios.post(`${APIBASEURL}${AUTHPREFIX}/signup`,{email,password});
+            const response:any = await axios.post(`${APIBASEURL}${AUTHPREFIX}/signup`,{name,email,password});
             console.log(response)
 
             if(response.status !== 200){
@@ -54,6 +59,22 @@ export default function SignupPage() {
             <main className="max-w-md mx-auto p-6">
                 <h1 className="text-3xl font-bold text-[#F15A29] mb-8">Sign Up</h1>
                 <form onSubmit={handleSignup} className="space-y-6">
+                    <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-2">
+                            Name
+                        </label>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                id="name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="w-full px-3 py-2 bg-[#2A2A2A] border border-[#404040] rounded-md 
+                           focus:outline-none focus:ring-2 focus:ring-[#F15A29] focus:border-transparent"
+                                required
+                            />
+                        </div>
+                    </div>
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">
                             Email
