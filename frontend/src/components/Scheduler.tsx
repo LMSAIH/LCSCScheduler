@@ -231,9 +231,10 @@ export default function Scheduler() {
                     end: new Date(new Date().setUTCFullYear(new Date().getUTCFullYear() + 1))
                 }}
                 longPressDelay={100}
-                eventLongPressDelay={200}
+                eventLongPressDelay={100}
                 selectLongPressDelay={100}
                 aspectRatio={1}
+                scrollTimeReset={false}
 
             />
 
