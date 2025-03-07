@@ -16,7 +16,16 @@ export default function SignupPage() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [error, setError] = useState<string | null>(null);
     const [sent, setSent] = useState(false);
-    const [disabled,setDisabled] = useState(false);
+    const [disabled, setDisabled] = useState(false);
+
+    const isStrongPassword = (password: string) => {
+        if (password.length < 8) return false;
+        if (!/[a-z]/.test(password)) return false;
+        if (!/[A-Z]/.test(password)) return false;
+        if (!/\d/.test(password)) return false;
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) return false;
+        return true;
+    };
 
     const handleSignup = async (e: React.FormEvent) => {
 
@@ -28,14 +37,18 @@ export default function SignupPage() {
                 throw new Error("Name cannot be empty.");
             }
 
-            if(password !== confirmPassword){
+            if (password !== confirmPassword) {
                 throw new Error("Password must match");
             }
 
-            const response:any = await axios.post(`${APIBASEURL}${AUTHPREFIX}/signup`,{name,email,password});
-            console.log(response)
+            if (!isStrongPassword(password)) {
+                throw new Error("Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.");
+            }
 
-            if(response.status !== 200){
+            const response: any = await axios.post(`${APIBASEURL}${AUTHPREFIX}/signup`, { name, email, password });
+            console.log("res", response)
+
+            if (response.status !== 200) {
                 throw new Error(response.response.data.detail)
             }
 
@@ -43,11 +56,18 @@ export default function SignupPage() {
             setSent(true);
             setDisabled(true);
 
-        } catch (err:any) {
-            
-            setError(err.message)
+        } catch (err: any) {
+
+            console.log("err", err)
+
+            if (err.response?.data?.detail) {
+                setError(err.response.data.detail)
+            }
+            else {
+                setError(err.message)
+            }
         }
-      
+
     }
 
     const handleGoogleSignup = () => {
@@ -130,7 +150,7 @@ export default function SignupPage() {
                                 type="button"
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white"
-                                
+
                             >
                                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                             </button>
@@ -140,7 +160,7 @@ export default function SignupPage() {
                         type="submit"
                         className="w-full px-6 py-2 bg-[#F15A29] hover:bg-[#D14918] 
                        rounded-md transition-colors font-medium flex items-center justify-center"
-                       disabled={disabled}
+                        disabled={disabled}
                     >
                         <UserPlus className="h-5 w-5 mr-2" />
                         Sign Up
