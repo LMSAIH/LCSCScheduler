@@ -73,14 +73,18 @@ export default function AdminScheduler() {
 
     const [events, setEvents] = useState<Event[] | []>([]);
     const [filterRole, setFilterRole] = useState<string>("All");
-    const { token } = useAuthContext();
+    const { user, token } = useAuthContext();
     const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlot[]>([]);
+
+    if (!user.user_roles || !(user.user_roles.length > 0) || !user.user_roles[0].roles?.includes("Admin")) {
+        return null;
+    }
 
     useEffect(() => {
         const fetchData = async () => {
 
             try {
-                const response = await axios.get(`${APIBASEURL}/admin/`, {
+                const response = await axios.get(`${APIBASEURL}/admin${filterRole != "All" ? `?role=${filterRole}` : "/"}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -95,7 +99,7 @@ export default function AdminScheduler() {
 
         fetchData();
         
-    }, [token]);
+    }, [token, filterRole]);
 
     useEffect(() => {
         // const availabilitySlots = generateAvailabilitySlots();

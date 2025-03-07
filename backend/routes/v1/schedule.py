@@ -55,6 +55,13 @@ def set_schedule(events: List[Event], supabase: Client = Depends(get_supabase), 
     try:
         user_id = current_user.id
 
+        user_profile = supabase.table("profiles").select("verified").eq("id", user_id).single().execute()
+
+        if user_profile.data is None:
+            raise HTTPException(status_code=404, detail="User profile not found.")
+
+        is_verified = user_profile.data["verified"]
+
         event_data = []
 
         for event in events:
@@ -82,6 +89,9 @@ def set_schedule(events: List[Event], supabase: Client = Depends(get_supabase), 
 
         if (response.data is None):
             raise HTTPException(status_code=500, detail="Database error")
+        
+        if not is_verified:
+            supabase.table("profiles").update({"verified": True}).eq("id", user_id).execute()
 
         return {"message": "Schedule updated."}
     except Exception as e:

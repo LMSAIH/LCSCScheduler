@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from supabase import Client
 from db.supabase_client import get_supabase
 from middleware.auth import get_current_user
-from models.auth import UserSignup
+from models.auth import UserSignup, UserLogin
+from utils.utils import is_strong_password
 
 router = APIRouter()
 
@@ -12,6 +13,13 @@ def signup_user(user: UserSignup, supabase: Client = Depends(get_supabase)):
     Signup route that creates a user in Supabase Auth.
     """
     try:
+        if not is_strong_password(user.password):
+            raise HTTPException(status_code=400, detail="Weak Password.")
+        
+        existing_profile = (supabase.table("profiles").select("*").eq("email", user.email).execute())
+        if existing_profile.data and len(existing_profile.data) > 0:
+            raise HTTPException(status_code=400, detail="Email already in use.")
+
         signup_response = supabase.auth.sign_up({"email": user.email, "password": user.password})
 
         if not signup_response.user or not signup_response.user.id:
@@ -19,6 +27,7 @@ def signup_user(user: UserSignup, supabase: Client = Depends(get_supabase)):
         
         profile_data = {
             "id": signup_response.user.id,
+            "name": user.name,
             "email": user.email
         }
         
@@ -29,7 +38,7 @@ def signup_user(user: UserSignup, supabase: Client = Depends(get_supabase)):
         raise HTTPException(status_code=400, detail=f"Error during sign up: {str(e)}")
     
 @router.post("/login")
-def login(user: UserSignup, response: Response, supabase: Client = Depends(get_supabase) ):
+def login(user: UserLogin, response: Response, supabase: Client = Depends(get_supabase) ):
     try:
         login_response = supabase.auth.sign_in_with_password({"email": user.email, "password": user.password})
 
@@ -38,6 +47,11 @@ def login(user: UserSignup, response: Response, supabase: Client = Depends(get_s
                 status_code=401, 
                 detail="Login failed or email not confirmed"
           )
+        
+        user_id = login_response.user.id
+
+        profile_query = (supabase.table("profiles").select("*, user_roles(*)").eq("id", user_id).single().execute())
+        profile_data = profile_query.data
       
         response.set_cookie(
                 key="access_token",
@@ -50,10 +64,11 @@ def login(user: UserSignup, response: Response, supabase: Client = Depends(get_s
     
         return {
             "access_token": login_response.session.access_token,
-            "user": login_response.user
+            "user": profile_data
         }
         
     except Exception as e:
+        print(f"Error during login: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Error during login: {str(e)}")
 
 @router.get("/verify")
@@ -71,6 +86,13 @@ async def verify(
             raise HTTPException(status_code=401, detail="No authentication token found")
         
         user = supabase.auth.get_user(token)
+        if not user or not user.user:
+            raise HTTPException(status_code=401, detail="Invalid or expired token")
+        
+        user_id = user.user.id
+
+        profile_query = (supabase.table("profiles").select("*, user_roles(*)").eq("id", user_id).single().execute())
+        profile_data = profile_query.data
         
         response.set_cookie(
             key="access_token",
@@ -81,7 +103,7 @@ async def verify(
             max_age=6000
         )
         
-        return {"user": user, "token": token }
+        return {"user": profile_data, "token": token }
         
     except Exception as e:
         raise HTTPException(status_code=401, detail="Token verification failed")
