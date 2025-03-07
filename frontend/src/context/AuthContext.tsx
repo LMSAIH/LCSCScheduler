@@ -1,7 +1,7 @@
 
 import { createContext, useState, useEffect, ReactNode, useContext } from "react";
 import axios from "axios";
-axios.defaults.withCredentials=true;
+axios.defaults.withCredentials = true;
 import { APIBASEURL, AUTHPREFIX } from "../utilities/ApiEndpoint";
 
 
@@ -66,9 +66,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = () => {
-    setToken(null);
-    setUser(null);
+  const logout = async () => {
+
+    try {
+
+      const response = await axios.post(`${APIBASEURL}${AUTHPREFIX}/logout`, {}, { withCredentials: true });
+
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setToken(null);
+      setUser(null);
+    }
+
   };
 
   return (
