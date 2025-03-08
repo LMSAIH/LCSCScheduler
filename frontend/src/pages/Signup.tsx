@@ -44,7 +44,7 @@ export default function SignupPage() {
             setDisabled(true);
 
         } catch (err:any) {
-            
+            console.log(err)
             setError(err.message)
         }
       
