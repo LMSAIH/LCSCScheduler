@@ -42,7 +42,7 @@ def get_availabilities(role: Optional[str] = Query(None, description="Role to fi
             profiles_query = supabase.table("profiles").select("name").eq("verified", True).execute()
             events_query = supabase.table("events").select("*, profiles(*, user_roles(*))").or_(f"start_date.is.null, and(start_date.gte.'{prev_sunday}', start_date.lte.'{last_saturday}')").execute() # TODO
 
-        print(profiles_query)
+        print(profiles_query) # TODO
         max_people = len(profiles_query.data) if profiles_query.data else 0
         events = events_query.data
         
