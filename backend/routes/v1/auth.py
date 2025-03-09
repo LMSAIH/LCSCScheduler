@@ -70,6 +70,21 @@ def login(user: UserLogin, response: Response, supabase: Client = Depends(get_su
     except Exception as e:
         print(f"Error during login: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Error during login: {str(e)}")
+    
+
+@router.post("/logout")
+async def logout(response: Response):
+    """
+    Logout route that clears the auth cookie
+    """
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        secure=True,
+        samesite="strict"
+    )
+    return {"message": "Logged out successfully"}
+
 
 @router.get("/verify")
 async def verify(
@@ -107,3 +122,5 @@ async def verify(
         
     except Exception as e:
         raise HTTPException(status_code=401, detail="Token verification failed")
+    
+    

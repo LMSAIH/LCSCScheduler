@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [error, setError] = useState<String | null>(null);
   const [loading, setLoading] = useState(false);
   const [existingRoles, setExistingRoles] = useState<string[]>([]);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
 
@@ -30,9 +31,11 @@ export default function SettingsPage() {
           }
         );
 
-        console.log(response.data)
+        console.log("here", response.data)
 
         setExistingRoles(response.data.roles);
+        setSelectedRoles(response.data.roles);
+        setInitialLoad(false);
 
       } catch (err) {
         console.log(err);
@@ -106,7 +109,7 @@ export default function SettingsPage() {
               >
                 <input
                   type="checkbox"
-                  checked={selectedRoles.includes(role)}
+                  checked={initialLoad ? existingRoles.includes(role) : selectedRoles.includes(role)}
                   onChange={() => handleRoleChange(role)}
                   className="form-checkbox h-5 w-5 text-[#F15A29] 
                              rounded focus:ring-[#F15A29] focus:ring-offset-[#1A1A1A]"

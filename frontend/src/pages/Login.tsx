@@ -25,8 +25,8 @@ export default function LoginPage() {
             navigate('/');
 
         } catch (err: any) {
-            setError(err.message)
-            console.log(err)
+            setError(err.response.data.detail)
+     
         }
 
     }
