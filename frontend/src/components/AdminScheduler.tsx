@@ -37,37 +37,6 @@ const generateColor = (numberOfPeople:number, maxPeopleAvailable:number): string
     }
 }
 
-// const generateAvailabilitySlots = (baseDate: Date = new Date()): AvailabilitySlot[] => {
-//     const slots: AvailabilitySlot[] = [];
-//     const Roles = ["Developer", "Volunteer", "President"];
-
-//     for (let dayOffset = 0; dayOffset < 6; dayOffset++) {
-
-//         const currentDay = new Date(baseDate);
-//         currentDay.setDate(baseDate.getDate() + dayOffset);
-
-//         for (let hour = 7; hour < 19; hour++) {
-//             const startDate = new Date(currentDay);
-//             startDate.setHours(hour, 0, 0, 0);
-
-//             const endDate = new Date(currentDay);
-//             endDate.setHours(hour + 1, 0, 0, 0);
-
-//             const numberOfPeople = Math.floor(Math.random() * 10);
-//             const maxPeopleAvailable = 10;
-//             const role = Roles[Math.floor(Math.random() * Roles.length)];
-
-//             slots.push({
-//                 startDate,
-//                 endDate,
-//                 numberOfPeople,
-//                 maxPeopleAvailable,
-//                 role
-//             });
-//         }
-//     }
-//     return slots;
-// };
 
 export default function AdminScheduler() {
 
@@ -102,7 +71,7 @@ export default function AdminScheduler() {
     }, [token, filterRole]);
 
     useEffect(() => {
-        // const availabilitySlots = generateAvailabilitySlots();
+        
         const newEvents: Event[] = availabilitySlots.map((slot, i) => {
             return {
                 id: i.toString(),
@@ -121,13 +90,20 @@ export default function AdminScheduler() {
 
     return (
         <div className="w-full md:w-1/2 m-auto adminCalendar mt-16">
-            <div className="flex flex-row gap-4 justify-center mb-5">
+            <div className="flex flex-row flex-wrap gap-4 justify-center mb-5">
                 <button
                     onClick={() => setFilterRole("All")}
                     className={`px-4 py-2 rounded-md ${filterRole === "All" ? "bg-[#F15A29]" : "bg-gray-500"
                         } hover:cursor-pointer`}
                 >
                     All
+                </button>
+                <button
+                    onClick={() => setFilterRole("Media")}
+                    className={`px-4 py-2 rounded-md ${filterRole === "Media" ? "bg-[#F15A29]" : "bg-gray-500"
+                        } hover:cursor-pointer`}
+                >
+                    Media
                 </button>
                 <button
                     onClick={() => setFilterRole("Developer")}
@@ -149,6 +125,13 @@ export default function AdminScheduler() {
                         } hover:cursor-pointer`}
                 >
                     President
+                </button>
+                <button
+                    onClick={() => setFilterRole("Events")}
+                    className={`px-4 py-2 rounded-md ${filterRole === "Events" ? "bg-[#F15A29]" : "bg-gray-500"
+                        } hover:cursor-pointer`}
+                >
+                    Events
                 </button>
             </div>
             <FullCalendar
