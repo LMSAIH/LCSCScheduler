@@ -15,7 +15,7 @@ PST = pytz.timezone("America/Vancouver")
 @router.get("/")
 def get_availabilities(role: Optional[str] = Query(None, description="Role to filter by"), supabase: Client = Depends(get_supabase), admin_user = Depends(check_admin) ) -> List[Availability]:
     try:
-        VALID_ROLES = ["Developer", "Volunteer", "President"] # TODO
+        VALID_ROLES = ["Developer", "Volunteer", "President", "Events","Media"] # TODO
 
         if role and role not in VALID_ROLES:
             raise HTTPException(status_code=400, detail="Invalid role.")
