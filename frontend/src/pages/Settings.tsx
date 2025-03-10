@@ -83,7 +83,7 @@ export default function SettingsPage() {
 
     } catch (err: any) {
       console.log(err)
-      setError(err.message);
+      setError(err.response.data.detail);
     } finally {
       setLoading(false);
     }
