@@ -1,81 +1,137 @@
 @import "tailwindcss";
 
-.fc .fc-event-title {
-  @apply text-black;
+/* First, establish a consistent theme structure */
+
+/* Base styles (neutral or light mode) */
+.fc-theme-standard .fc-scrollgrid {
+  border-color: #E2E8F0;
 }
 
-.fc .fc-event-time{
-  @apply text-black;
+.fc-theme-standard td, .fc-theme-standard th {
+  border-color: #E2E8F0;
 }
 
-
+/* Calendar cell styling */
 .fc .fc-timegrid-slot {
-  @apply h-14; 
+  height: 3em !important;
+  font-size: 1.05em;
 }
 
-.fc-view-harness{
-  @apply min-h-fit;
+.fc-col-header-cell {
+  background: #F0F2F5;
+  color: #1A1F23;
+  font-weight: 600;
+  padding: 8px 0;
 }
 
-table, td, tr, td, tbody{
-  @apply border-4 border-gray-400;
+.fc-timegrid-slot, .fc-timegrid-slot-lane {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
 }
 
-.dark .fc{
-  @apply mt-10 text-white;
+.fc-timegrid-slot:nth-child(even) {
+  background: #F8F9FA;
 }
 
-.fc{
-  @apply text-black mt-10;
+.fc-timegrid-slot-label {
+  color: #1A1F23;
+  font-weight: 600;
+  padding-right: 8px;
 }
 
-table{
-  @apply rounded-md ;
+.fc-timegrid-axis {
+  background: #F0F2F5;
+  width: 65px !important;
 }
 
-:root {
-  --background: #121212;
-  --foreground: #ffffff;
-  --primary: #f15a29;
-  --border: #2a2a2a;
+/* Event styling base */
+.fc-event {
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: auto !important; 
+  min-height: 2.5em;
 }
 
-body {
-  @apply bg-gray-200;
+.fc-event.permanent-event,
+.fc-event[data-event-type="Permanent"] {
+  background-color: #AB0033 !important;
+  color: white !important;
+}
+
+.fc-event.temporary-event,
+.fc-event[data-event-type="Temporary"] {
+  background-color: #3B5F8A !important;
+  color: white !important;
+}
+
+/* Button styling */
+.fc-button-primary {
+  background: #F0F2F5 !important;
+  border-color: #E2E8F0 !important;
+  color: #1A1F23 !important;
+  font-weight: 500 !important;
+  padding: 6px 12px !important;
+}
+
+.fc-button-primary:hover {
+  background: #E2E8F0 !important;
+}
+
+.fc-button-active {
+  background: #59001C !important;
+  color: white !important;
+}
+
+/* Now add explicit dark mode overrides */
+.dark .fc-theme-standard .fc-scrollgrid,
+.dark .fc-theme-standard td, 
+.dark .fc-theme-standard th {
+  border-color: #3D4045;
+  background-color: #0F171E;
+  color:white;
+}
+
+.dark .fc-col-header-cell {
+  background: #1D232A;
+  color: white;
+}
+
+.dark .fc-timegrid-slot, 
+.dark .fc-timegrid-slot-lane {
+  background: #0F171E !important;
+  border-color: white !important;
+}
+
+.dark .fc-timegrid-slot:nth-child(even) {
+  background: #13202E;
+  
+}
+
+.dark .fc-timegrid-slot-label {
+  color: #E0E0E0;
 }
 
 
-nav{
-  @apply bg-gray-100;
+.dark .fc-timegrid-axis {
+  background: #1D232A;
 }
 
-.dark nav{
-  @apply bg-[#121212];
+.dark .fc-button-primary {
+  background: #1D232A !important;
+  border-color: #3D4045 !important;
+  color: white !important;
 }
 
-.dark nav svg{
-  @apply text-white;
+.dark .fc-button-primary:hover {
+  background: #30332F !important;
 }
 
-nav svg{
-  @apply text-[#f15a29];
-}
+/* Rest of your styles like scrollbars, etc. */
 
-.dark{
-  @apply bg-[#121212] text-white;
-
-}
-
-.dark .fc{
-  @apply text-white;
-}
-
-table .fc{
-  @apply text-black;
-}
-
+/* Fix the scrollbar (only keeping one version) */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -83,10 +139,82 @@ table .fc{
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
+  background: #3D4045;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: #59001C;
+}
+
+/* Better aspect ratio for the calendar */
+.fc {
+  min-height: 650px;
+  max-height: 800px;
+}
+
+/* Color overrides for different event types */
+.fc-event.permanent-event {
+  background-color: #8A0029 !important;
+  color: white;
+}
+
+.fc-event.temporary-event {
+  background-color: #2A4365 !important;
+  color: white;
+}
+
+/* Light mode overrides */
+:not(.dark) .fc-theme-standard .fc-scrollgrid,
+:not(.dark) .fc-theme-standard td, 
+:not(.dark) .fc-theme-standard th {
+  border-color: #E2E8F0;
+}
+
+:not(.dark) .fc-col-header-cell {
+  background: #F0F2F5;
+  color: #1A1F23;
+}
+
+:not(.dark) .fc-timegrid-slot, 
+:not(.dark) .fc-timegrid-slot-lane {
+  background: dark;
+  border-color: #E2E8F0;
+}
+
+:not(.dark) .fc-timegrid-slot:nth-child(even) {
+  background: #F8F9FA;
+}
+
+:not(.dark) .fc-timegrid-slot-label {
+  color: #1A1F23;
+}
+
+:not(.dark) .fc-timegrid-axis {
+  background: #F0F2F5;
+}
+
+:not(.dark) .fc-button-primary {
+  background: #F0F2F5 !important;
+  border-color: #E2E8F0 !important;
+  color: #1A1F23 !important;
+}
+
+:not(.dark) .fc-button-primary:hover {
+  background: #E2E8F0 !important;
+}
+
+:not(.dark) .fc-button-active {
+  background: #59001C !important;
+  color: white !important;
+}
+
+:not(.dark) .light-mode-permanent {
+  background-color: #AB0033 !important;
+  color: white !important;
+}
+
+:not(.dark) .light-mode-temporary {
+  background-color: #3B5F8A !important;
+  color: white !important;
 }
