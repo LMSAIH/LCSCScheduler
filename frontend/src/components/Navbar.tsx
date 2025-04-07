@@ -22,9 +22,6 @@ export default function NavBar() {
           {/* Logo and title */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#59001C] to-[#7A0026] rounded-md flex items-center justify-center mr-3">
-                <Calendar className="h-5 w-5 text-white" />
-              </div>
               <span className="text-xl font-semibold bg-gradient-to-r from-white to-[#C1C1BD] bg-clip-text text-transparent">
                 LCSC Scheduler
               </span>
