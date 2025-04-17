@@ -1,13 +1,38 @@
 import os
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
+import logging
 
 from routes.v1.auth import router as auth_router
 from routes.v1.schedule import router as schedule_router
 from routes.v1.admin import router as admin_router
 from routes.v1.roles import router as roles_router
 
-app = FastAPI()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+scheduler = BackgroundScheduler()
+
+def delete_expired_events():
+    logger.info(f"Running cleanup at {datetime.now()}")
+
+scheduler.add_job(delete_expired_events, 'interval', seconds=30)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting scheduler...")
+    scheduler.start()
+    logger.info("Scheduler started successfully!")
+    yield
+    logger.info("Shutting down scheduler...")
+    scheduler.shutdown()
+    logger.info("Scheduler shut down successfully!")
+
+logger.info("Starting app..")
+app = FastAPI(lifespan=lifespan)
 
 origin = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
