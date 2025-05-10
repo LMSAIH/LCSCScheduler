@@ -51,11 +51,11 @@ export default function Home() {
                                 className="overflow-hidden"
                             >
                                 <div className={`p-5 ${darkMode ? "text-[#C1C1BD]" : "text-[#4A5568]"}`}>
-                                    <p className="mb-4">Before registering your availability, go to 
+                                    <p className="mb-4">Before registering your availability, go to  
                                         <span className={`font-medium ${darkMode ? "text-white" : "text-[#1A1F23]"}`}>
                                             Settings
                                         </span> 
-                                        and select your role(s). Then, return to the homepage to enter your schedule.
+                                         and select your role(s). Then, return to the homepage to enter your schedule.
                                     </p>
                                     <p className={`mb-4 ${darkMode ? "text-white" : "text-[#1A1F23]"}`}>
                                         <strong>Please mark the hours when you are busy, not when you are free.</strong>
