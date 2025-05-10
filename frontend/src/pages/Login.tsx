@@ -1,8 +1,7 @@
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { LogIn, Eye, EyeOff, Key } from "lucide-react"
-import { FcGoogle } from "react-icons/fc"
 import { useNavigate } from "react-router-dom"
 import { useAuthContext } from "../context/AuthContext"
 import { motion } from "framer-motion"
@@ -27,9 +26,6 @@ export default function LoginPage() {
         }
     }
 
-    const handleGoogleLogin = () => {
-        console.log("Google login attempt")
-    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#0D1216] to-[#131D25] text-white flex items-center justify-center px-4">
@@ -128,18 +124,7 @@ export default function LoginPage() {
                                     <span className="px-4 bg-[#0F171E] text-[#C1C1BD]">or continue with</span>
                                 </div>
                             </div>
-                            
-                            <motion.button
-                                onClick={handleGoogleLogin}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="mt-4 w-full px-6 py-3 bg-white hover:bg-[#F8F8F8] 
-                                text-[#0D1216] rounded-md font-medium 
-                                flex items-center justify-center shadow-lg transition-all duration-200 hover:cursor-pointer"
-                            >
-                                <FcGoogle className="h-5 w-5 mr-2" />
-                                Sign in with Google
-                            </motion.button>
+                         
                         </div>
                     </div>
                     
